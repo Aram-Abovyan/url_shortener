@@ -1,0 +1,38 @@
+name: url_shortener
+
+services:
+
+  db:
+    image: postgres:17.2-bookworm
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: me
+      POSTGRES_DB: my_db
+    ports:
+      - "5432:5432"
+
+  server:
+    image: server_image
+    build: ./server
+    depends_on:
+      - db
+    volumes:
+      - type: bind
+        source: ./server
+        target: /app
+    ports:
+      - "3000:3000"
+
+  client:
+    image: client_image
+    build: ./client
+    depends_on:
+      - server
+    volumes:
+      - type: bind
+        source: ./client
+        target: /app
+    ports:
+      - "8080:8080"
